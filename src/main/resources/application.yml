@@ -1,0 +1,73 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: telegram-ai-assistant
+  
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/telegram_bot_db}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379}
+      timeout: 3000ms
+
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 20MB
+
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN:}
+  bot-username: ${TELEGRAM_BOT_USERNAME:MyAiAssistantBot}
+  mode: ${TELEGRAM_MODE:polling} # "polling" for dev/local or "webhook" for prod
+  webhook-url: ${TELEGRAM_WEBHOOK_URL:}
+  secret-token: ${TELEGRAM_SECRET_TOKEN:secret_token_123}
+  max-file-size-bytes: 10485760 # 10MB
+
+ai:
+  provider: ${AI_PROVIDER:openai}
+  api-key: ${AI_API_KEY:}
+  base-url: ${AI_BASE_URL:https://api.openai.com/v1}
+  model: ${AI_MODEL:gpt-4o-mini}
+  temperature: ${AI_TEMPERATURE:0.7}
+  max-tokens: ${AI_MAX_TOKENS:2000}
+  memory-max-messages: 10
+  memory-summary-threshold: 20
+
+admin:
+  default-username: ${ADMIN_USERNAME:admin}
+  default-password: ${ADMIN_PASSWORD:admin123456}
+
+usage:
+  free-daily-limit: 20
+  premium-daily-limit: 200
+  rate-limit-per-minute: 15
+
+logging:
+  level:
+    root: INFO
+    com.example.assistant: DEBUG
+    org.springframework.web: INFO

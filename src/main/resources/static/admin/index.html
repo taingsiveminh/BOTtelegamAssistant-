@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram AI Assistant — Admin Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">🤖</div>
+                <div class="brand-text">
+                    <h2>AI Assistant</h2>
+                    <span class="badge badge-primary">Admin Pro</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-item active" onclick="switchTab('dashboard')">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="#users" class="nav-item" onclick="switchTab('users')">
+                    <span class="icon">👥</span> User Management
+                </a>
+                <a href="#broadcast" class="nav-item" onclick="switchTab('broadcast')">
+                    <span class="icon">📢</span> Broadcast Message
+                </a>
+                <a href="#costs" class="nav-item" onclick="switchTab('costs')">
+                    <span class="icon">💰</span> AI Costs & Models
+                </a>
+                <a href="#settings" class="nav-item" onclick="switchTab('settings')">
+                    <span class="icon">⚙️</span> Server Config
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span>System Online</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div>
+                    <h1 id="page-title">Dashboard Overview</h1>
+                    <p class="subtitle">Real-time Telegram AI bot metrics and activity</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="loadDashboardStats()">🔄 Refresh</button>
+                    <button class="btn btn-primary" onclick="switchTab('broadcast')">✉️ Send Broadcast</button>
+                </div>
+            </header>
+
+            <!-- Dashboard Tab -->
+            <section id="tab-dashboard" class="tab-pane active">
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Total Users</span>
+                            <span class="metric-icon">👥</span>
+                        </div>
+                        <div class="metric-value" id="val-total-users">0</div>
+                        <div class="metric-sub" id="val-active-users">0 Active today</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Messages Today</span>
+                            <span class="metric-icon">💬</span>
+                        </div>
+                        <div class="metric-value" id="val-messages-today">0</div>
+                        <div class="metric-sub" id="val-total-messages">0 Total messages</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">AI Requests Today</span>
+                            <span class="metric-icon">⚡</span>
+                        </div>
+                        <div class="metric-value" id="val-ai-requests-today">0</div>
+                        <div class="metric-sub" id="val-tokens-today">0 Tokens consumed</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">AI Cost (Today / Total)</span>
+                            <span class="metric-icon">💵</span>
+                        </div>
+                        <div class="metric-value" id="val-cost-today">$0.00</div>
+                        <div class="metric-sub" id="val-cost-total">Total: $0.00</div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="card chart-card">
+                        <h3>📈 Usage & Requests Trend</h3>
+                        <canvas id="usageChart"></canvas>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>🤖 Cost Breakdown by Model</h3>
+                        <canvas id="costPieChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Tab -->
+            <section id="tab-users" class="tab-pane">
+                <div class="card">
+                    <div class="card-header-flex">
+                        <h3>Registered Telegram Users</h3>
+                        <input type="text" id="userSearchInput" class="search-input" placeholder="Search by name / username..." oninput="filterUsersTable()">
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Telegram User</th>
+                                    <th>Language</th>
+                                    <th>Tier Plan</th>
+                                    <th>Status</th>
+                                    <th>Joined At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr><td colspan="7" class="text-center">Loading users...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Broadcast Tab -->
+            <section id="tab-broadcast" class="tab-pane">
+                <div class="card form-card">
+                    <h3>📢 Broadcast Announcement to Users</h3>
+                    <p class="subtitle">Broadcast messages are queued and sent safely to prevent Telegram API rate limits.</p>
+                    
+                    <div class="form-group">
+                        <label for="broadcastTier">Target Audience</label>
+                        <select id="broadcastTier" class="form-control">
+                            <option value="ALL">All Active Users</option>
+                            <option value="FREE">Free Tier Only</option>
+                            <option value="PREMIUM">Premium Users Only</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="broadcastMessage">Announcement Message (Supports HTML / Markdown)</label>
+                        <textarea id="broadcastMessage" class="form-control" rows="6" placeholder="Type your announcement here..."></textarea>
+                    </div>
+
+                    <button class="btn btn-primary btn-block" onclick="sendBroadcast()">🚀 Dispatch Announcement</button>
+                    <div id="broadcastStatus" class="broadcast-alert" style="display: none;"></div>
+                </div>
+            </section>
+
+            <!-- AI Costs Tab -->
+            <section id="tab-costs" class="tab-pane">
+                <div class="card">
+                    <h3>💵 AI Model Pricing & Cost Analysis</h3>
+                    <p class="subtitle">Real-time expenditure tracked across models</p>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>AI Model</th>
+                                    <th>Total Requests</th>
+                                    <th>Total Tokens</th>
+                                    <th>Estimated Cost (USD)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="costTableBody">
+                                <tr><td colspan="4" class="text-center">Loading cost data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Tab -->
+            <section id="tab-settings" class="tab-pane">
+                <div class="card">
+                    <h3>⚙️ System Configuration</h3>
+                    <div class="config-list">
+                        <div class="config-item">
+                            <div><strong>Backend Runtime:</strong> Java 21 / Spring Boot 3.4</div>
+                            <span class="badge badge-success">Active</span>
+                        </div>
+                        <div class="config-item">
+                            <div><strong>Telegram Connection Mode:</strong> <span id="cfg-mode">Polling / Webhook</span></div>
+                            <span class="badge badge-primary">Configured</span>
+                        </div>
+                        <div class="config-item">
+                            <div><strong>Primary AI Provider:</strong> OpenAI Compatible API</div>
+                            <span class="badge badge-primary">Connected</span>
+                        </div>
+                        <div class="config-item">
+                            <div><strong>Document Engine:</strong> Apache PDFBox 3.0 + Apache POI 5.4</div>
+                            <span class="badge badge-success">Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

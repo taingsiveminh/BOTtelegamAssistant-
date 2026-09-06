@@ -1,0 +1,22 @@
+# Build & Binary files
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# Environment variables & secrets
+.env
+*.local
+*.secret
+
+# IDE & OS files
+.idea/
+*.iml
+.vscode/
+.DS_Store
+*.log
+
+# Temp files
+scratch/
+.system_generated/
