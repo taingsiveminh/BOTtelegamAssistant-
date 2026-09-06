@@ -103,7 +103,11 @@ public class TelegramMessageSender {
         payload.put("text", MarkdownUtils.truncate(htmlText, 4000));
         payload.put("parse_mode", "HTML");
         try {
-            telegramClient.editMessageText(payload);
+            JsonNode res = telegramClient.editMessageText(payload);
+            if (res == null || !res.has("ok") || !res.get("ok").asBoolean()) {
+                log.warn("HTML edit was rejected by Telegram. Falling back to plain text edit.");
+                editMessage(chatId, messageId, htmlText);
+            }
         } catch (Exception ex) {
             log.warn("Edit HTML failed, falling back to plain text edit: {}", ex.getMessage());
             editMessage(chatId, messageId, htmlText);
