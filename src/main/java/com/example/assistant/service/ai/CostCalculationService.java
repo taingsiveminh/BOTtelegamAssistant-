@@ -13,13 +13,21 @@ public class CostCalculationService {
      */
     public BigDecimal calculateCost(String model, int promptTokens, int completionTokens) {
         if (model == null) {
-            model = "gpt-4o-mini";
+            model = "deepseek-chat";
         }
 
         double inputCostPerMillion;
         double outputCostPerMillion;
 
         switch (model.toLowerCase()) {
+            case "deepseek-chat", "deepseek-v3" -> {
+                inputCostPerMillion = 0.14;
+                outputCostPerMillion = 0.28;
+            }
+            case "deepseek-reasoner", "deepseek-r1" -> {
+                inputCostPerMillion = 0.55;
+                outputCostPerMillion = 2.19;
+            }
             case "gpt-4o" -> {
                 inputCostPerMillion = 2.50;
                 outputCostPerMillion = 10.00;
@@ -37,8 +45,8 @@ public class CostCalculationService {
                 outputCostPerMillion = 1.50;
             }
             default -> {
-                inputCostPerMillion = 0.15;
-                outputCostPerMillion = 0.60;
+                inputCostPerMillion = 0.14;
+                outputCostPerMillion = 0.28;
             }
         }
 

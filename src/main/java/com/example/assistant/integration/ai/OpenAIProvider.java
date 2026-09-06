@@ -60,8 +60,16 @@ public class OpenAIProvider implements AIProvider {
                 .build();
 
         try {
+            String baseUrl = aiConfig.getBaseUrl();
+            if (baseUrl == null || baseUrl.isBlank()) {
+                baseUrl = "https://api.deepseek.com";
+            }
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+            }
+
             RestClient restClient = RestClient.builder()
-                    .baseUrl(aiConfig.getBaseUrl())
+                    .baseUrl(baseUrl)
                     .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                     .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .build();
@@ -71,9 +79,17 @@ public class OpenAIProvider implements AIProvider {
                     .body(request)
                     .retrieve()
                     .body(AiResponseDto.class);
+        } catch (org.springframework.web.client.RestClientResponseException rre) {
+            String responseBody = rre.getResponseBodyAsString();
+            log.error("AI API Error (Status {}): {}", rre.getStatusCode(), responseBody);
+            
+            if (responseBody != null && responseBody.toLowerCase().contains("insufficient balance")) {
+                throw new AiProviderException("DeepSeek Error: Insufficient Balance. Please check/top up your credits at platform.deepseek.com", rre);
+            }
+            throw new AiProviderException("AI Provider API Error (" + rre.getStatusCode() + "): " + responseBody, rre);
         } catch (Exception ex) {
-            log.error("Failed to execute OpenAI chat completion: {}", ex.getMessage(), ex);
-            throw new AiProviderException("Error communicating with OpenAI provider: " + ex.getMessage(), ex);
+            log.error("Failed to execute AI chat completion: {}", ex.getMessage(), ex);
+            throw new AiProviderException("Error communicating with AI provider: " + ex.getMessage(), ex);
         }
     }
 }

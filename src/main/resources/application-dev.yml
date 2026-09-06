@@ -24,5 +24,7 @@ telegram:
   mode: polling
 
 ai:
-  api-key: ""
-  model: gpt-4o-mini
+  provider: ${AI_PROVIDER:deepseek}
+  api-key: ${AI_API_KEY:sk-09a89f1bbba44af396a53ab1735d05c9}
+  base-url: ${AI_BASE_URL:https://api.deepseek.com}
+  model: ${AI_MODEL:deepseek-chat}

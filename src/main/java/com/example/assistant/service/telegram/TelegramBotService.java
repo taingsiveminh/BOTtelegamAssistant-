@@ -176,6 +176,9 @@ public class TelegramBotService {
 
         } catch (QuotaExceededException qe) {
             messageSender.editMessageHtml(chatId, placeholderId, "⚠️ " + MarkdownUtils.escapeHtml(qe.getMessage()));
+        } catch (com.example.assistant.exception.AiProviderException aie) {
+            log.warn("AI Provider exception: {}", aie.getMessage());
+            messageSender.editMessageHtml(chatId, placeholderId, "⚠️ <b>AI Service Notice:</b>\n" + MarkdownUtils.escapeHtml(aie.getMessage()));
         } catch (Exception ex) {
             log.error("Error executing AI response for user {}: {}", user.getTelegramUserId(), ex.getMessage(), ex);
             messageSender.editMessageHtml(chatId, placeholderId, "😅 <b>Sorry bro,</b> something went wrong while processing your AI request. Please try again.");
