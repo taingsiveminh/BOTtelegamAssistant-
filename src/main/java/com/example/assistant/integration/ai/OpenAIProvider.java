@@ -86,6 +86,9 @@ public class OpenAIProvider implements AIProvider {
             if (responseBody != null && responseBody.toLowerCase().contains("insufficient balance")) {
                 throw new AiProviderException("DeepSeek Error: Insufficient Balance. Please check/top up your credits at platform.deepseek.com", rre);
             }
+            if (rre.getStatusCode().value() == 429 || (responseBody != null && responseBody.toLowerCase().contains("rate_limit_exceeded"))) {
+                throw new AiProviderException("⏳ The AI engine is experiencing high traffic right now. Please wait ~15 seconds and send your message again.", rre);
+            }
             throw new AiProviderException("AI Provider API Error (" + rre.getStatusCode() + "): " + responseBody, rre);
         } catch (Exception ex) {
             log.error("Failed to execute AI chat completion: {}", ex.getMessage(), ex);

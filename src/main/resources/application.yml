@@ -53,9 +53,9 @@ ai:
   base-url: ${AI_BASE_URL:https://api.groq.com/openai/v1}
   model: ${AI_MODEL:openai/gpt-oss-120b}
   temperature: ${AI_TEMPERATURE:0.7}
-  max-tokens: ${AI_MAX_TOKENS:2000}
-  memory-max-messages: 10
-  memory-summary-threshold: 20
+  max-tokens: ${AI_MAX_TOKENS:650}
+  memory-max-messages: 6
+  memory-summary-threshold: 12
 
 admin:
   default-username: ${ADMIN_USERNAME:admin}
